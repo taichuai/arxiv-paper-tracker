@@ -1,0 +1,78 @@
+# arXiv Paper Tracker Configuration
+
+# arXiv 配置
+arxiv:
+  categories:
+    - "cs.SD"      # Audio and Speech Processing
+    - "eess.AS"    # Audio and Speech Processing
+    - "cs.CL"      # Computation and Language (需要额外过滤)
+  keywords_filter:  # 用于 cs.CL 的过滤
+    - "speech"
+    - "audio"
+    - "TTS"
+    - "ASR"
+    - "voice"
+    - "acoustic"
+    - "speaker"
+  max_results: 200  # 每次最多获取论文数（增大以覆盖更多天数）
+  days_back: 7      # 获取最近几天的论文（增大以防遗漏）
+
+# LLM 配置
+llm:
+  provider: "groq"  # 可选: openai, anthropic, groq
+  model: "llama-3.3-70b-versatile"  # Groq 推荐模型 (免费)
+  # model: "gpt-4o-mini"  # OpenAI 模型
+  # model: "claude-3-5-haiku-20241022"  # Claude 模型
+  api_key: ""  # 在 .env 中配置
+  max_tokens: 500
+  temperature: 0.3
+
+# 研究兴趣配置（用于相关性评分）
+research_interests:
+  # 按重要性排序，权重递减
+  primary:
+    - "text-to-speech"
+    - "TTS"
+    - "speech synthesis"
+    - "voice cloning"
+    - "neural vocoder"
+  secondary:
+    - "ASR"
+    - "speech recognition"
+    - "voice conversion"
+    - "singing voice synthesis"
+  tertiary:
+    - "speech enhancement"
+    - "speaker verification"
+    - "emotion recognition"
+
+# 子领域分类
+subcategories:
+  - "TTS (语音合成)"
+  - "ASR (语音识别)"
+  - "语音增强"
+  - "说话人识别/验证"
+  - "语音转换"
+  - "歌声合成"
+  - "语音情感识别"
+  - "多模态语音"
+  - "其他"
+
+# 数据库配置
+database:
+  type: "sqlite"
+  path: "../data/papers.db"
+
+# 调度器配置
+scheduler:
+  enabled: true
+  fetch_time: "09:00"  # 每天执行时间 (HH:MM)
+  timezone: "Asia/Shanghai"
+
+# Web 服务配置
+web:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5173"
