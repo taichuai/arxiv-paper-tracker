@@ -14,6 +14,7 @@ class Paper(Base):
     arxiv_id = Column(String(50), unique=True, index=True, nullable=False)
     title = Column(String(500), nullable=False)
     authors = Column(Text, nullable=False)  # JSON string of author list
+    affiliations = Column(Text, nullable=True)  # 作者机构信息
     abstract = Column(Text, nullable=False)
     categories = Column(String(200), nullable=False)  # Comma-separated
     published_date = Column(DateTime, nullable=False, index=True)
@@ -43,6 +44,10 @@ class PaperAnalysis(Base):
     keywords = Column(JSON, nullable=True)  # List of keywords
     subcategory = Column(String(50), nullable=True, index=True)  # 子领域分类
     relevance_score = Column(Float, nullable=True, index=True)  # 相关性评分 0-10
+    affiliations = Column(JSON, nullable=True)  # 机构列表（由 LLM 推断）
+    innovation_score = Column(Float, nullable=True, index=True)  # 创新性评分 0-10（用于精选）
+    innovation_reason = Column(Text, nullable=True)  # 创新性理由
+    github_url = Column(String(500), nullable=True)  # GitHub 代码仓库链接
 
     # 用户交互
     is_bookmarked = Column(Boolean, default=False, index=True)

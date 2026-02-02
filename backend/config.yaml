@@ -1,5 +1,10 @@
 # arXiv Paper Tracker Configuration
 
+# ============================================================
+# 重要提示：开源前请修改以下配置
+# IMPORTANT: Please modify the following before open-sourcing
+# ============================================================
+
 # arXiv 配置
 arxiv:
   categories:
@@ -19,13 +24,23 @@ arxiv:
 
 # LLM 配置
 llm:
-  provider: "groq"  # 可选: openai, anthropic, groq
-  model: "llama-3.3-70b-versatile"  # Groq 推荐模型 (免费)
-  # model: "gpt-4o-mini"  # OpenAI 模型
-  # model: "claude-3-5-haiku-20241022"  # Claude 模型
-  api_key: ""  # 在 .env 中配置
-  max_tokens: 500
+  # 优先级顺序：按列表顺序尝试，第一个成功的会被使用
+  providers:
+    - name: "groq"
+      model: "llama-3.3-70b-versatile"
+      enabled: true
+    - name: "anthropic"
+      model: "claude-sonnet-4-5-20250514"
+      enabled: true
+  max_tokens: 800
   temperature: 0.3
+
+# 数据库清理配置
+database:
+  type: "sqlite"
+  path: "../data/papers.db"
+  # 保留最近多少天的论文（超过的会被清理）
+  retention_days: 90
 
 # 研究兴趣配置（用于相关性评分）
 research_interests:
@@ -58,6 +73,30 @@ subcategories:
   - "多模态语音"
   - "其他"
 
+# 每周精选配置
+featured:
+  enabled: true
+  count: 5  # 每周精选数量
+  # 精选方向（子领域）
+  target_subcategories:
+    - "TTS (语音合成)"
+    - "多模态语音"
+    - "歌声合成"
+    - "语音转换"
+  # 精选关键词（论文包含这些关键词会加分）
+  keywords:
+    - "text-to-speech"
+    - "TTS"
+    - "speech synthesis"
+    - "multimodal"
+    - "voice cloning"
+    - "zero-shot"
+    - "neural codec"
+    - "diffusion"
+    - "language model"
+  # 精选评分阈值（innovation_score 或 relevance_score >= 此值才能入选）
+  min_score: 6.0
+
 # 数据库配置
 database:
   type: "sqlite"
@@ -69,10 +108,159 @@ scheduler:
   fetch_time: "09:00"  # 每天执行时间 (HH:MM)
   timezone: "Asia/Shanghai"
 
+# 订阅推送配置
+notification:
+  enabled: true
+  # 推送时间（在论文抓取后执行）
+  push_time: "09:30"
+
+  # 订阅关键词（匹配标题或摘要）
+  keywords:
+    - "text-to-speech"
+    - "TTS"
+    - "speech synthesis"
+    - "voice cloning"
+    - "zero-shot"
+    - "neural codec"
+    - "diffusion"
+
+  # 机构订阅（来自这些机构的论文会推送）
+  institutions:
+    - "Google"
+    - "OpenAI"
+    - "ByteDance"
+    - "Tsinghua"
+    - "清华"
+
+  # 最低评分阈值（只推送高于此分数的论文）
+  min_score: 7.0
+
+  # 每次最多推送论文数
+  max_papers: 10
+
+  # 飞书机器人配置
+  feishu:
+    enabled: true
+    # Webhook URL 从环境变量 FEISHU_WEBHOOK_URL 读取
+    webhook_url: ""
+
+  # 微信推送配置（支持 Server酱、PushPlus、企业微信）
+  wechat:
+    enabled: false
+    # 推送渠道: "serverchan" | "pushplus" | "wecom"
+    channel: "pushplus"
+    # Token 从环境变量 WECHAT_PUSH_TOKEN 读取
+    token: ""
+
 # Web 服务配置
 web:
   host: "0.0.0.0"
   port: 8000
+  # 前端地址（用于 CORS 和推送消息中的链接）
+  frontend_url: "http://localhost:5173"
   cors_origins:
     - "http://localhost:3000"
     - "http://localhost:5173"
+
+# 头部机构列表（用于高亮显示和精选筛选）
+top_institutions:
+  # 国际科技公司
+  - "Google"
+  - "Microsoft"
+  - "Meta"
+  - "Apple"
+  - "Amazon"
+  - "NVIDIA"
+  - "OpenAI"
+  - "DeepMind"
+  - "ByteDance"
+  - "Tencent"
+  - "Alibaba"
+  - "Baidu"
+  - "Huawei"
+  - "Samsung"
+  - "IBM"
+  - "Intel"
+  - "Adobe"
+  - "Anthropic"
+  # 美国顶尖高校
+  - "MIT"
+  - "Stanford"
+  - "Berkeley"
+  - "CMU"
+  - "Carnegie Mellon"
+  - "Harvard"
+  - "Princeton"
+  - "Yale"
+  - "Caltech"
+  - "Cornell"
+  - "Columbia"
+  - "UCLA"
+  - "UCSD"
+  - "NYU"
+  - "Georgia Tech"
+  - "UIUC"
+  - "UMich"
+  - "UT Austin"
+  - "UPenn"
+  - "Johns Hopkins"
+  # 加拿大高校
+  - "Toronto"
+  - "Waterloo"
+  - "McGill"
+  - "Montreal"
+  - "Mila"
+  - "UBC"
+  # 英国高校
+  - "Cambridge"
+  - "Oxford"
+  - "Imperial"
+  - "UCL"
+  - "Edinburgh"
+  # 欧洲高校
+  - "ETH"
+  - "EPFL"
+  - "Max Planck"
+  - "MPI"
+  - "INRIA"
+  # 亚洲高校
+  - "Tokyo"
+  - "Kyoto"
+  - "KAIST"
+  - "Seoul National"
+  - "NUS"
+  - "NTU Singapore"
+  - "HKUST"
+  - "HKU"
+  - "CUHK"
+  # 中国高校
+  - "Tsinghua"
+  - "清华"
+  - "Peking"
+  - "北大"
+  - "Zhejiang"
+  - "浙大"
+  - "Shanghai Jiao Tong"
+  - "上交"
+  - "SJTU"
+  - "Fudan"
+  - "复旦"
+  - "USTC"
+  - "中科大"
+  - "Nanjing"
+  - "南大"
+  - "Harbin"
+  - "哈工大"
+  - "Huazhong"
+  - "华中科技"
+  - "Beihang"
+  - "北航"
+  # 知名研究机构
+  - "Microsoft Research"
+  - "Google Research"
+  - "Meta AI"
+  - "FAIR"
+  - "Allen Institute"
+  - "AI2"
+  - "Chinese Academy"
+  - "中科院"
