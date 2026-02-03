@@ -110,11 +110,13 @@ class ArxivFetcher:
         authors = [author.name for author in result.authors]
 
         # 提取机构信息（去重）
+        # 注意：arxiv 库的 Author 对象不一定有 affiliation 属性
         affiliations = []
         seen = set()
         for author in result.authors:
-            if author.affiliation and author.affiliation.strip():
-                aff = author.affiliation.strip()
+            aff = getattr(author, 'affiliation', None)
+            if aff and aff.strip():
+                aff = aff.strip()
                 if aff not in seen:
                     seen.add(aff)
                     affiliations.append(aff)
