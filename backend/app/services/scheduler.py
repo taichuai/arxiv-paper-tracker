@@ -123,6 +123,13 @@ class PaperScheduler:
                 processor = LLMProcessor(db)
                 processed_count = processor.process_unprocessed_papers(limit=saved_count)
                 logger.info(f"✓ LLM 分析完成: {processed_count} 篇")
+
+                # 3. 获取处理完成后立即推送
+                notification_config = self.config.get("notification", {})
+                if notification_config.get("enabled", False) and processed_count > 0:
+                    logger.info("获取完成，立即执行推送...")
+                    result = send_daily_notification(db)
+                    logger.info(f"推送结果: {result}")
             else:
                 logger.info("没有新的论文")
 

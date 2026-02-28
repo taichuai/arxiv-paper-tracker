@@ -26,11 +26,11 @@ arxiv:
 llm:
   # 优先级顺序：按列表顺序尝试，第一个成功的会被使用
   providers:
+    - name: "anthropic"
+      model: "claude-opus-4-6"
+      enabled: true
     - name: "groq"
       model: "llama-3.3-70b-versatile"
-      enabled: true
-    - name: "anthropic"
-      model: "claude-sonnet-4-5-20250514"
       enabled: true
   max_tokens: 800
   temperature: 0.3
@@ -105,14 +105,14 @@ database:
 # 调度器配置
 scheduler:
   enabled: true
-  fetch_time: "09:00"  # 每天执行时间 (HH:MM)
+  fetch_time: "15:00"  # 每天执行时间 (HH:MM)
   timezone: "Asia/Shanghai"
 
 # 订阅推送配置
 notification:
   enabled: true
   # 推送时间（在论文抓取后执行）
-  push_time: "09:30"
+  push_time: "15:30"
 
   # 订阅关键词（匹配标题或摘要）
   keywords:

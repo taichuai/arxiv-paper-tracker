@@ -12,7 +12,10 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
 @router.post("/fetch-now")
-def trigger_fetch(sync: bool = Query(default=True, description="同步执行并返回结果")):
+def trigger_fetch(
+    sync: bool = Query(default=True, description="同步执行并返回结果"),
+    auto_notify: bool = Query(default=True, description="获取后自动推送")
+):
     """手动触发论文获取任务"""
     if sync:
         # 同步执行，返回结果
@@ -26,11 +29,26 @@ def trigger_fetch(sync: bool = Query(default=True, description="同步执行并�
             processor = LLMProcessor(db)
             processed_count = processor.process_unprocessed_papers(limit=20)
 
+            # 自动推送（如果有新论文且开启了自动推送）
+            notify_result = None
+            if auto_notify and processed_count > 0:
+                service = NotificationService(db)
+                matched_papers = service.get_matching_papers(hours=168)  # 最近 7 天
+                if matched_papers:
+                    notify_result = service.send_notifications(matched_papers)
+                    logger.info(f"自动推送完成: {len(matched_papers)} 篇论文")
+
             return {
                 "success": True,
                 "new_papers": saved_count,
                 "processed": processed_count,
-                "message": f"获取完成：新增 {saved_count} 篇论文，处理了 {processed_count} 篇"
+                "message": f"获取完成：新增 {saved_count} 篇论文，处理了 {processed_count} 篇",
+                "notification": {
+                    "sent": notify_result is not None,
+                    "paper_count": len(matched_papers) if notify_result else 0,
+                    "feishu_success": notify_result.get("feishu", False) if notify_result else False,
+                    "wechat_success": notify_result.get("wechat", False) if notify_result else False
+                } if auto_notify else None
             }
         except Exception as e:
             logger.error(f"获取论文失败: {e}")

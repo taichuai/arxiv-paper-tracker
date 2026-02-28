@@ -75,7 +75,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <router-view ref="paperList" @trigger-fetch="handleFetchClick" />
+      <router-view ref="paperList" :key="refreshKey" @trigger-fetch="handleFetchClick" />
     </main>
 
     <footer class="bg-white border-t mt-auto">
@@ -98,6 +98,7 @@ export default {
     return {
       isFetching: false,
       lastFetchTime: null,
+      refreshKey: 0,
       toast: {
         show: false,
         message: '',
@@ -198,11 +199,8 @@ export default {
       }
     },
     refreshPaperList() {
-      // 调用子组件的刷新方法
-      if (this.$refs.paperList && this.$refs.paperList.loadPapers) {
-        this.$refs.paperList.loadPapers()
-        this.$refs.paperList.loadStats()
-      }
+      // 通过改变 key 强制重新渲染 router-view，触发子组件重新加载数据
+      this.refreshKey++
     }
   }
 }

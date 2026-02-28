@@ -314,8 +314,13 @@ class NotificationService:
             raise Exception(f"企业微信错误: {result}")
 
 
-def send_daily_notification(db: Session) -> Dict:
-    """发送每日推送（供调度器调用）"""
+def send_daily_notification(db: Session, hours: int = 168) -> Dict:
+    """发送每日推送（供调度器调用）
+
+    Args:
+        db: 数据库会话
+        hours: 查找最近多少小时的论文，默认 168 小时（7 天）
+    """
     service = NotificationService(db)
-    papers = service.get_matching_papers(hours=24)
+    papers = service.get_matching_papers(hours=hours)
     return service.send_notifications(papers)
